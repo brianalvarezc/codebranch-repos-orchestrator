@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  fastapi:
+    build:
+      context: ../codebranch-fastapi-geoprocesor-ms
+      dockerfile: Dockerfile
+      args:
+        PORT: 8000
+    container_name: fastapi-geoprocesor-ms
+    env_file:
+      - ../codebranch-fastapi-geoprocesor-ms/.env
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+  nestjs:
+    build:
+      context: ../codebranch-nestjs-mdw-ms
+      dockerfile: Dockerfile
+      args:
+        PORT: 3000
+    container_name: nestjs-mdw-ms
+    env_file:
+      - ../codebranch-nestjs-mdw-ms/.env
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    depends_on:
+      - fastapi
+
+  nextjs:
+    build:
+      context: ../codebranch-nextjs-geoprocesor-frontend
+      dockerfile: Dockerfile
+      args:
+        PORT: 4000
+    container_name: nextjs-geoprocesor-frontend
+    env_file:
+      - ../codebranch-nextjs-geoprocesor-frontend/.env.local
+    ports:
+      - "4000:4000"
+    restart: unless-stopped
+    depends_on:
+      - nestjs
+
+networks:
+  default:
+    driver: bridge

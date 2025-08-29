@@ -1,19 +1,3 @@
-def create_and_activate_venv(path):
-    """
-    Crea un entorno virtual en el path dado si no existe y retorna la ruta al ejecutable de python del venv.
-    """
-    venv_path = os.path.join(path, 'venv')
-    if not os.path.exists(venv_path):
-        print(f"Creando entorno virtual en {venv_path}...")
-        subprocess.run(f'python -m venv "{venv_path}"', shell=True, cwd=path)
-    else:
-        print(f"El entorno virtual ya existe en {venv_path}.")
-    # Retornar ruta al ejecutable python del venv
-    if os.name == 'nt':
-        python_exe = os.path.join(venv_path, 'Scripts', 'python.exe')
-    else:
-        python_exe = os.path.join(venv_path, 'bin', 'python')
-    return python_exe
 import subprocess
 import os
 
@@ -41,6 +25,23 @@ def create_env_file(example_path, env_path, default_content=None):
         print(f"Archivo .env creado en {env_path} con contenido por defecto")
     else:
         print(f"No se pudo crear .env en {env_path}: no existe .env.example y no se proporcionó contenido por defecto.")
+
+def create_and_activate_venv(path):
+    """
+    Crea un entorno virtual en el path dado si no existe y retorna la ruta al ejecutable de python del venv.
+    """
+    venv_path = os.path.join(path, 'venv')
+    if not os.path.exists(venv_path):
+        print(f"Creando entorno virtual en {venv_path}...")
+        subprocess.run(f'python -m venv "{venv_path}"', shell=True, cwd=path)
+    else:
+        print(f"El entorno virtual ya existe en {venv_path}.")
+    # Retornar ruta al ejecutable python del venv
+    if os.name == 'nt':
+        python_exe = os.path.join(venv_path, 'Scripts', 'python.exe')
+    else:
+        python_exe = os.path.join(venv_path, 'bin', 'python')
+    return python_exe
 
 def install_deps(command, path):
     print(f"Instalando dependencias en {path}...")
