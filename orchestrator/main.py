@@ -16,6 +16,7 @@ import subprocess
 
 app = typer.Typer()
 
+
 # Cargar variables de entorno desde .env
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env'))
 
@@ -70,10 +71,70 @@ def setup():
         default_content="# Configuración del orquestador\n"
     )
 
+
 @app.command()
-def start():
-    """Arranca los servicios en terminales separados"""
-    for name, repo in REPOS.items():
+def setup(
+    fastapi: bool = typer.Option(False, help="Setup only FastAPI project"),
+    nestjs: bool = typer.Option(False, help="Setup only NestJS project"),
+    nextjs: bool = typer.Option(False, help="Setup only NextJS project")
+):
+    """Clone repos and install dependencies (all or per project)"""
+    targets = []
+    if fastapi:
+        targets.append("fastapi")
+    if nestjs:
+        targets.append("nestjs")
+    if nextjs:
+        targets.append("nextjs")
+    if not targets:
+        targets = list(REPOS.keys())
+    for name in targets:
+        repo = REPOS[name]
+        clone_repo(repo["url"], repo["path"])
+        env_example = os.path.join(repo["path"], ".env.example")
+        env_file = os.path.join(repo["path"], ".env")
+        create_env_file(env_example, env_file)
+
+        if name == "fastapi":
+            python_exe = create_and_activate_venv(repo["path"])
+            req_path = os.path.join(repo["path"], "requirements.txt")
+            if os.path.exists(req_path):
+                print(f"Instalando requirements en entorno virtual: {python_exe}")
+                subprocess.run(f'"{python_exe}" -m pip install --upgrade pip', shell=True)
+                subprocess.run(f'"{python_exe}" -m pip install -r "{req_path}"', shell=True)
+            else:
+                print(f"No se encontró requirements.txt en {repo['path']}")
+        else:
+            install_deps(repo["install"], repo["path"])
+
+    # Crear .env del orquestador si no existe (solo si se hace setup global)
+    if not (fastapi or nestjs or nextjs):
+        orchestrator_env = os.path.join(os.path.dirname(__file__), '..', '.env')
+        create_env_file(
+            example_path=os.path.join(os.path.dirname(__file__), '..', '.env.example'),
+            env_path=orchestrator_env,
+            default_content="# Configuración del orquestador\n"
+        )
+
+
+@app.command()
+def start(
+    fastapi: bool = typer.Option(False, help="Start only FastAPI project"),
+    nestjs: bool = typer.Option(False, help="Start only NestJS project"),
+    nextjs: bool = typer.Option(False, help="Start only NextJS project")
+):
+    """Start services (all or per project)"""
+    targets = []
+    if fastapi:
+        targets.append("fastapi")
+    if nestjs:
+        targets.append("nestjs")
+    if nextjs:
+        targets.append("nextjs")
+    if not targets:
+        targets = list(REPOS.keys())
+    for name in targets:
+        repo = REPOS[name]
         start_service(repo["start"], repo["path"], name)
 
 

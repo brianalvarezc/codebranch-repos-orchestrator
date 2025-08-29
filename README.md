@@ -1,47 +1,52 @@
+# Codebranch Repositories Orchestrator
+
+## Project Overview & Architecture Decision
+
+This ecosystem is designed as a multi-repository architecture, with each microservice (FastAPI, NestJS, NextJS) in its own repository. This separation allows for independent development, testing, and deployment, following best practices for microservices and clean architecture. Each service is stateless and can be deployed or scaled individually.
+
+**Justification:**
+- **Separation of concerns:** Each service has a clear responsibility (core processing, API gateway/caching, frontend visualization).
+- **Technology fit:** FastAPI is used for efficient Python-based geoprocessing, NestJS for scalable API orchestration and caching, and NextJS for a modern frontend experience.
+- **Deployment flexibility:** Each repo includes a Dockerfile for containerized deployment, but local validation is streamlined by the orchestrator CLI.
+
+## Service Interaction & Data Flow
+
+1. **NextJS Frontend**: Allows users to input geographic coordinates and visualizes results on a map. Sends requests to the NestJS API.
+2. **NestJS API**: Acts as a middleware, validating input, caching results, and forwarding requests to the FastAPI microservice. Handles error management and response formatting.
+3. **FastAPI Microservice**: Receives coordinate data, validates it, calculates centroid and bounding box, and returns results in a structured JSON format.
+
+**Error Handling:**
+- Each service validates its input and returns clear error messages (400 for invalid data, 401 for authentication, 500 for unexpected errors).
+- Error responses and validation logic are documented in each service's README.
+
+**Stateless Design:**
+- All services are stateless, with no persistent storage. Caching in NestJS is in-memory and ephemeral.
+
+**Documentation:**
+- Each repository contains a README with installation, configuration, endpoints, and usage instructions. The orchestrator README summarizes manual and automated setup for all services.
+
+---
+
+This orchestrator was created to facilitate the validation and testing of the Codebranch microservices locally and quickly. It automates the download, installation, configuration, and startup of the FastAPI, NestJS, and NextJS projects from a single CLI.
+
+Each managed project already includes its own Dockerfile for deployment in production or development environments, but this orchestrator streamlines the process of local validation and testing without the need for containers.
 
 
-# Orquestador de Repositorios Codebranch
+## How to Run
 
-Este orquestador fue creado para facilitar la validación y pruebas de código de los microservicios de la prueba de Codebranch de forma local y ágil. Permite automatizar la descarga, instalación, configuración y arranque de los proyectos FastAPI, NestJS y NextJS desde una sola CLI.
+For installation, CLI usage, and manual setup of each managed project, see [HowToRun.md](./HowToRun.md).
 
-Cada proyecto gestionado ya cuenta con su propio Dockerfile para despliegue en ambientes productivos o de desarrollo, pero este orquestador agiliza el proceso de validación y pruebas locales sin necesidad de contenedores.
+---
 
-## Requisitos previos
+## Structure
 
-Antes de ejecutar el orquestador, asegúrate de tener instalado lo siguiente en tu sistema:
+- `orchestrator/main.py`: Main CLI
+- `orchestrator/utils.py`: Utilities for repo and service management
+- `.env.example`: Example environment variables
+- `requirements.txt`: Orchestrator dependencies
 
-- [Python 3.8+](https://www.python.org/downloads/) (requerido para FastAPI y el orquestador)
-- [pnpm](https://pnpm.io/installation) (requerido para NextJS y NestJS)
-- [Git](https://git-scm.com/downloads) (para clonar los repositorios)
-- [Node.js 16+](https://nodejs.org/) (requerido por pnpm, NextJS y NestJS)
-- [pip](https://pip.pypa.io/en/stable/installation/) (gestor de paquetes de Python)
-
-Opcional pero recomendado:
-- Un editor de código como [VS Code](https://code.visualstudio.com/)
-
-## Comandos principales
-
-1. Instala dependencias del orquestador:
-   ```sh
-   pip install -r requirements.txt
-   ```
-2. Ejecuta la CLI:
-   ```sh
-   python -m orchestrator.main setup      # Clona repos y instala dependencias
-   python -m orchestrator.main start      # Arranca los servicios
-   python -m orchestrator.main clean      # Elimina los repositorios clonados y archivos generados
-   ```
-
-**Nota:** Debes personalizar las variables de entorno en `.env` según tu entorno local y verificar las URLs de los repositorios en el código.
-
-## Estructura
-
-- `orchestrator/main.py`: CLI principal
-- `orchestrator/utils.py`: utilidades para gestión de repos y servicios
-- `.env.example`: ejemplo de variables de entorno
-- `requirements.txt`: dependencias del orquestador
-
-## Repositorios gestionados
+## Managed Repositories
 - FastAPI: codebranch-fastapi-geoprocesor-ms
 - NestJS: codebranch-nestjs-mdw-ms
 - NextJS: codebranch-nextjs-geoprocesor-frontend
+
