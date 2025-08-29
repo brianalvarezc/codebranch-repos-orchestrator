@@ -1,0 +1,41 @@
+# Archivos y carpetas a ignorar en el proyecto orquestador
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+.env.*
+*.env
+*.log
+*.sqlite3
+*.db
+# VSCode
+.vscode/
+# Entornos virtuales
+venv/
+ENV/
+.envrc
+# Dependencias descargadas
+node_modules/
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+# Archivos de test y cobertura
+.coverage
+htmlcov/
+*.cover
+# Archivos de paquetes
+*.egg-info/
+dist/
+build/
+# Docker
+*.pid
+docker-compose.override.yml
+# Otros
+*.bak
+*.swp
+*.swo
+# Repositorios clonados
+codebranch-fastapi-geoprocesor-ms/
+codebranch-nestjs-mdw-ms/
+codebranch-nextjs-geoprocesor-frontend/
